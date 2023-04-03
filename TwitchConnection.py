@@ -21,8 +21,6 @@ USER_SCOPE = [AuthScope.CHAT_READ, AuthScope.CHAT_EDIT]
 # initialize the bot
 ai = ChatBot()
 
-conn = None
-
 try:
     conn = sqlite3.connect('app.db')
 
@@ -42,7 +40,6 @@ except sqlite3.Error as e:
 finally:
     if conn:
         conn.close() 
-
 
 try:
     with open('user_credentials.json', 'r') as f:
@@ -92,15 +89,21 @@ async def on_message(msg: ChatMessage):
         await gamble_command_handler(msg)
     elif msg.text.startswith('!duel'):
         await duel_command_handler(msg)
+    elif msg.text.startswith('!help'):
+        await help_command_handler(msg)
     
     
     conn.commit()
     conn.close()
+
+async def help_command_handler(cmd: ChatCommand):
+    cmd.reply(f'list of commands: !points, !gamble, !duel, !help')
+
 # here we need to put in a function that will be executed when a user messages !bot in chat
 async def bot_command_handler(cmd: ChatCommand):
     trueMessage = cmd.text[15:]
     print(trueMessage)
-    reply = ai.text_output(utterance=cmd.text)
+    reply = ai.text_output(utterance=trueMessage)
     await cmd.reply(f'{cmd.user.name}: {reply[3:-4]}')
 
 async def points_command_handler(cmd: ChatCommand):
