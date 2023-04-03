@@ -9,7 +9,7 @@ Code is set to to easily run the chatbot in terminal. Model runs locally on GPU,
 ## Functionality
 
 - Chat commands
-  - To interact with the bot, type !bot in chat at the start of your message.
+  - To interact with the bot, type @llamachop_bot in chat at the start of your message.
     - at the moment, the model for the bot only runs locally, and I have only tested it on a GPU. There are other model options in BlenderChatbot.py that can be selected, you must uncomment the model you want to use and comment out the model you don't want to use.
   - !points
     - This will display the number of points the user has. These points are stored on a local database, so they will remain the same across streams.
@@ -58,9 +58,8 @@ known issues:
 
 - first time you connect to the bot, it requires you to sign in to a twitch account as authorization. After this access token times out, it will fail to connect. You have to delete user_credentials.json to fix this. I am working on a fix for this.
 
-
-
 ## Planned Features
 
 - Add a way to connect to an API to run the model.
 - allow the bot to be used in multiple channels at once.
+- fine tune my own model to be used for the bot. 
