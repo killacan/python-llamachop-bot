@@ -32,6 +32,34 @@ Code is set to to easily run the chatbot in terminal. Model runs locally on GPU,
     - This will remove a user from the mod list. replace username with the username of the user you want to remove.
     - you cant remove the streamer from the mod list and must be a mod.
 
+## Setup
+
+to run the Twitch Chatbot:
+
+clone the repo
+
+```bash
+git clone <paste repo link here>
+cd python-llamachop-bot
+python TwitchConnection.py
+```
+
+To just run the chatbot:
+
+```bash
+git clone <paste repo link here>
+cd python-llamachop-bot
+python BlenderChatbot.py
+```
+
+This will open the chatbot in the terminal and you can communicate with it directly. 
+
+known issues:
+
+- first time you connect to the bot, it requires you to sign in to a twitch account as authorization. After this access token times out, it will fail to connect. You have to delete user_credentials.json to fix this. I am working on a fix for this.
+
+
+
 ## Planned Features
 
 - Add a way to connect to an API to run the model.

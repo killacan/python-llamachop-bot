@@ -3,9 +3,9 @@ import torch
 
 class ChatBot():
     def __init__(self):
-        # self.model_name = "facebook/blenderbot-400M-distill"
+        self.model_name = "facebook/blenderbot-400M-distill"
         # self.model_name = "facebook/blenderbot-3B"]
-        self.model_name = "facebook/blenderbot-1B-distill"
+        # self.model_name = "facebook/blenderbot-1B-distill"
         self.model = BlenderbotForConditionalGeneration.from_pretrained(self.model_name)
         self.tokenizer = BlenderbotTokenizer.from_pretrained(self.model_name)
         self.running = True
@@ -34,5 +34,6 @@ class ChatBot():
         while self.running:
             self.text_output(self.text_input())
 
-
+ai = ChatBot()
+ai.run()
 
