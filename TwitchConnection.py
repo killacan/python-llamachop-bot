@@ -88,6 +88,10 @@ async def on_message(msg: ChatMessage):
         await addmod_command_handler(msg)
     elif msg.text.startswith('!removemod') & mod:
         await removemod_command_handler(msg)
+    elif msg.text.startswith('!gamble'):
+        await gamble_command_handler(msg)
+    elif msg.text.startswith('!duel'):
+        await duel_command_handler(msg)
     
     
     conn.commit()
@@ -172,6 +176,37 @@ async def removemod_command_handler(cmd: ChatCommand):
         cmd.reply(f'{name} cannot be removed from the mods list')
     conn.commit()
     conn.close()
+
+async def gamble_command_handler(cmd: ChatCommand):
+    # this is going to allow the user to gamble their points
+    # for this to work we need a function that will return a random number between 1 and 2.
+    random_number = random.randint(1, 2)
+    points = cmd.text.split(' ')[1]
+    conn = sqlite3.connect('app.db')
+    if random_number == 1:
+        conn.execute('UPDATE users SET points = points + ? WHERE name = ?', (points, cmd.user.name)).fetchone()
+        cmd.reply(f'{cmd.user.name} has won {points} points')
+    else:
+        conn.execute('UPDATE users SET points = points - ? WHERE name = ?', (points, cmd.user.name)).fetchone()
+        cmd.reply(f'{cmd.user.name} has lost {points} points')
+    conn.commit()
+
+async def duel_command_handler(cmd: ChatCommand):
+    # this is going to allow the user to duel another user
+    # for this we are also going to need a function that returns a random number between 1 and 2.
+    random_number = random.randint(1, 2)
+    opponent = cmd.text.split(' ')[1]
+    points = cmd.text.split(' ')[2]
+    conn = sqlite3.connect('app.db')
+    if random_number == 1:
+        conn.execute('UPDATE users SET points = points + ? WHERE name = ?', (points, cmd.user.name)).fetchone()
+        conn.execute('UPDATE users SET points = points - ? WHERE name = ?', (points, opponent)).fetchone()
+        cmd.reply(f'{cmd.user.name} has beat {opponent}! they won {points} points')
+    else:
+        conn.execute('UPDATE users SET points = points - ? WHERE name = ?', (points, cmd.user.name)).fetchone()
+        conn.execute('UPDATE users SET points = points + ? WHERE name = ?', (points, opponent)).fetchone()
+        cmd.reply(f'{cmd.user.name} has lost to {opponent}! they lost {points} points')
+    conn.commit()
 
 # set up the connection to Twitch
 async def twitch_connect():
