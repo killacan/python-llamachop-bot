@@ -84,6 +84,11 @@ async def on_message(msg: ChatMessage):
         await addquote_command_handler(msg)
     elif msg.text.startswith('!removequote') & mod:
         await removequote_command_handler(msg)
+    elif msg.text.startswith('!addmod') & mod:
+        await addmod_command_handler(msg)
+    elif msg.text.startswith('!removemod') & mod:
+        await removemod_command_handler(msg)
+    
     
     conn.commit()
     conn.close()
@@ -134,6 +139,7 @@ async def addquote_command_handler(cmd: ChatCommand):
     quote = cmd.text[10:]
     conn = sqlite3.connect('app.db')
     conn.execute('INSERT INTO quotes (quote, author) VALUES (?, ?)', (quote, cmd.user.name))
+    cmd.reply(f'Added quote: {quote}')
     conn.commit()
     conn.close()
 
@@ -142,6 +148,28 @@ async def removequote_command_handler(cmd: ChatCommand):
     quote = cmd.text.split(' ')[1]
     conn = sqlite3.connect('app.db')
     conn.execute('DELETE FROM quotes WHERE id = ?', (quote,))
+    cmd.reply(f'Removed quote #{quote}')
+    conn.commit()
+    conn.close()
+
+async def addmod_command_handler(cmd: ChatCommand):
+    # this is going to add the specified user to the mods table
+    name = cmd.text.split(' ')[1]
+    conn = sqlite3.connect('app.db')
+    conn.execute('INSERT INTO mods (name) VALUES (?)', (name,))
+    cmd.reply(f'{name} has been added to the mods list')
+    conn.commit()
+    conn.close()
+
+async def removemod_command_handler(cmd: ChatCommand):
+    # this is going to remove the specified user from the mods table
+    name = cmd.text.split(' ')[1]
+    conn = sqlite3.connect('app.db')
+    if name != TARGET_CHANNEL:
+        conn.execute('DELETE FROM mods WHERE name = ?', (name,))
+        cmd.reply(f'{name} has been removed from the mods list')
+    else:
+        cmd.reply(f'{name} cannot be removed from the mods list')
     conn.commit()
     conn.close()
 
