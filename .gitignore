@@ -1,3 +1,4 @@
 .env
 user_credentials.json
 __pycache__
+app.db

@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 import os
 from BlenderChatbot import ChatBot
 import json
+import sqlite3
 
 # this is to be able to use the .env file in the same directory
 load_dotenv()
@@ -20,6 +21,29 @@ USER_SCOPE = [AuthScope.CHAT_READ, AuthScope.CHAT_EDIT]
 # initialize the bot
 ai = ChatBot()
 
+conn = None
+
+try:
+    conn = sqlite3.connect('app.db')
+
+    cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'")
+    table_exists = cursor.fetchone() is not None
+    
+    if not table_exists:
+        # Create the users table if it doesn't exist
+        conn.execute('CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, points INTEGER)')
+        conn.execute('CREATE TABLE mods (id INTEGER PRIMARY KEY, name TEXT)')
+        conn.execute('CREATE TABLE quotes (id INTEGER PRIMARY KEY, quote TEXT, author TEXT)')
+        conn.execute('INSERT INTO mods (name) VALUES (?)', (TARGET_CHANNEL,))
+        conn.execute('INSERT INTO mods (name) VALUES (?)', ('llamachop_bot',))
+        conn.commit()
+except sqlite3.Error as e:
+    print(e)
+finally:
+    if conn:
+        conn.close() 
+
+
 try:
     with open('user_credentials.json', 'r') as f:
         user_credentials = json.load(f)
@@ -32,16 +56,94 @@ async def on_ready(ready_event: EventData):
     await ready_event.chat.join_room(TARGET_CHANNEL)
 
 async def on_message(msg: ChatMessage):
-    # print(msg.text)
+    # if user does not exist in database, add them
+    # if user does exist, increment their points
+    # if user is a mod, they have full control over other users' points
+
+    conn = sqlite3.connect('app.db')
+    messageUser = conn.execute('SELECT * FROM users WHERE name = ?', (msg.user.name,)).fetchone()
+    if messageUser is None:
+        conn.execute('INSERT INTO users (name, points) VALUES (?, ?)', (msg.user.name, 10))
+
+    if conn.execute('SELECT * FROM mods WHERE name = ?', (msg.user.name,)).fetchone():
+        mod = True
+    else:
+        mod = False
+
     if msg.text.startswith('!bot'):
         await bot_command_handler(msg)
-
+    elif msg.text.startswith('!points'):
+        await points_command_handler(msg)
+    elif msg.text.startswith('!addpoints') & mod:
+        await add_command_handler(msg)
+    elif msg.text.startswith('!removepoints') & mod:
+        await remove_command_handler(msg)
+    elif msg.text.startswith('!quote'):
+        await quote_command_handler(msg)
+    elif msg.text.startswith('!addquote') & mod:
+        await addquote_command_handler(msg)
+    elif msg.text.startswith('!removequote') & mod:
+        await removequote_command_handler(msg)
+    
+    conn.commit()
+    conn.close()
 # here we need to put in a function that will be executed when a user messages !bot in chat
 async def bot_command_handler(cmd: ChatCommand):
     trueMessage = cmd.text[5:]
     print(trueMessage)
     reply = ai.text_output(utterance=cmd.text)
     await cmd.reply(f'{cmd.user.name}: {reply[3:-4]}')
+
+async def points_command_handler(cmd: ChatCommand):
+    # this is going to access the database and return the number of points the user has
+    conn = sqlite3.connect('app.db')
+    reply = conn.execute('SELECT points FROM users WHERE name = ?', (cmd.user.name,)).fetchone()
+    conn.close()
+    await cmd.reply(f'{cmd.user.name} has {reply[0]} points')
+
+async def add_command_handler(cmd: ChatCommand):
+    # this is going to add the specified number of points to the specified user
+    name = cmd.text.split(' ')[1]
+    points = cmd.text.split(' ')[2]
+    conn = sqlite3.connect('app.db')
+    conn.execute('UPDATE users SET points = points + ? WHERE name = ?', (points, name)).fetchone()
+    conn.commit()
+    conn.close()
+
+async def remove_command_handler(cmd: ChatCommand):
+    # this is going to remove the specified number of points from the specified user
+    name = cmd.text.split(' ')[1]
+    points = cmd.text.split(' ')[2]
+    conn = sqlite3.connect('app.db')
+    conn.execute('UPDATE users SET points = points - ? WHERE name = ?', (points, name)).fetchone()
+    conn.commit()
+    conn.close()
+
+async def quote_command_handler(cmd: ChatCommand):
+    # this is going to return a random quote from the database
+    conn = sqlite3.connect('app.db')
+    res = conn.execute('SELECT id, quote FROM quotes ORDER BY RANDOM() LIMIT 1').fetchone()
+    conn.close()
+    print(res)
+    if res is not None:
+        id, text = res
+        await cmd.reply(f'#{id}: {text}')
+
+async def addquote_command_handler(cmd: ChatCommand):
+    # this is going to add the specified quote to the database
+    quote = cmd.text[10:]
+    conn = sqlite3.connect('app.db')
+    conn.execute('INSERT INTO quotes (quote, author) VALUES (?, ?)', (quote, cmd.user.name))
+    conn.commit()
+    conn.close()
+
+async def removequote_command_handler(cmd: ChatCommand):
+    # this is going to remove the specified quote from the database
+    quote = cmd.text.split(' ')[1]
+    conn = sqlite3.connect('app.db')
+    conn.execute('DELETE FROM quotes WHERE id = ?', (quote,))
+    conn.commit()
+    conn.close()
 
 # set up the connection to Twitch
 async def twitch_connect():
@@ -58,6 +160,7 @@ async def twitch_connect():
         with open('user_credentials.json', 'w') as f:
             json.dump({'token': token, 'refresh_token': refresh_token}, f)
             print("User credentials saved")
+
     
     print("Twitch connection established")
 
