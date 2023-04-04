@@ -217,7 +217,14 @@ async def twitch_connect():
     if user_credentials is not None:
         token = user_credentials['token']
         refresh_token = user_credentials['refresh_token']
-        await twitch.set_user_authentication(token, USER_SCOPE, refresh_token)
+        try:
+            await twitch.set_user_authentication(token, USER_SCOPE, refresh_token)
+        except:
+            auth = UserAuthenticator(twitch, USER_SCOPE, force_verify=False)
+            token, refresh_token = await auth.authenticate()
+            await twitch.set_user_authentication(token, USER_SCOPE, refresh_token)
+            with open('user_credentials.json', 'w') as f:
+                json.dump({'token': token, 'refresh_token': refresh_token}, f)
         print("User credentials loaded")
     else:
         auth = UserAuthenticator(twitch, USER_SCOPE, force_verify=False)
