@@ -24,6 +24,7 @@ ai = ChatBot()
 try:
     conn = sqlite3.connect('app.db')
 
+    # looks at the database and checks if the users table exists
     cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'")
     table_exists = cursor.fetchone() is not None
     
@@ -41,6 +42,7 @@ finally:
     if conn:
         conn.close() 
 
+# checks to see if the credentials file exists, if it does, load it
 try:
     with open('user_credentials.json', 'r') as f:
         user_credentials = json.load(f)
@@ -213,10 +215,12 @@ async def duel_command_handler(cmd: ChatCommand):
 
 # set up the connection to Twitch
 async def twitch_connect():
+    # info pulled from the .env file for twitch authentication
     twitch = await Twitch(CLIENT_ID, CLIENT_SECRET)
     if user_credentials is not None:
         token = user_credentials['token']
         refresh_token = user_credentials['refresh_token']
+        # if login fails, the token will refresh and save
         try:
             await twitch.set_user_authentication(token, USER_SCOPE, refresh_token)
         except:
@@ -226,7 +230,7 @@ async def twitch_connect():
             with open('user_credentials.json', 'w') as f:
                 json.dump({'token': token, 'refresh_token': refresh_token}, f)
         print("User credentials loaded")
-    else:
+    else: # if there is no saved user credential, it will authenticate and save
         auth = UserAuthenticator(twitch, USER_SCOPE, force_verify=False)
         token, refresh_token = await auth.authenticate()
         await twitch.set_user_authentication(token, USER_SCOPE, refresh_token)
