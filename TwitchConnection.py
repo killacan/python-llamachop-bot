@@ -8,6 +8,7 @@ import os
 from BlenderChatbot import ChatBot
 import json
 import sqlite3
+import random
 
 # this is to be able to use the .env file in the same directory
 load_dotenv()
@@ -148,7 +149,7 @@ async def addquote_command_handler(cmd: ChatCommand):
     quote = cmd.text[10:]
     conn = sqlite3.connect('app.db')
     conn.execute('INSERT INTO quotes (quote, author) VALUES (?, ?)', (quote, cmd.user.name))
-    cmd.reply(f'Added quote: {quote}')
+    await cmd.reply(f'Added quote: {quote}')
     conn.commit()
     conn.close()
 
@@ -166,7 +167,7 @@ async def addmod_command_handler(cmd: ChatCommand):
     name = cmd.text.split(' ')[1]
     conn = sqlite3.connect('app.db')
     conn.execute('INSERT INTO mods (name) VALUES (?)', (name,))
-    cmd.reply(f'{name} has been added to the mods list')
+    await cmd.reply(f'{name} has been added to the mods list')
     conn.commit()
     conn.close()
 
@@ -176,9 +177,9 @@ async def removemod_command_handler(cmd: ChatCommand):
     conn = sqlite3.connect('app.db')
     if name != TARGET_CHANNEL:
         conn.execute('DELETE FROM mods WHERE name = ?', (name,))
-        cmd.reply(f'{name} has been removed from the mods list')
+        await cmd.reply(f'{name} has been removed from the mods list')
     else:
-        cmd.reply(f'{name} cannot be removed from the mods list')
+        await cmd.reply(f'{name} cannot be removed from the mods list')
     conn.commit()
     conn.close()
 
@@ -188,13 +189,17 @@ async def gamble_command_handler(cmd: ChatCommand):
     random_number = random.randint(1, 2)
     points = cmd.text.split(' ')[1]
     conn = sqlite3.connect('app.db')
-    if random_number == 1:
+    points_total = conn.execute('SELECT points FROM users WHERE name = ?', (cmd.user.name,)).fetchone()
+    if int(points) > int(points_total[0]):
+        await cmd.reply(f'{cmd.user.name} does not have enough points to gamble')
+    elif random_number == 1:
         conn.execute('UPDATE users SET points = points + ? WHERE name = ?', (points, cmd.user.name)).fetchone()
-        cmd.reply(f'{cmd.user.name} has won {points} points')
+        await cmd.reply(f'{cmd.user.name} has won {points} points')
     else:
         conn.execute('UPDATE users SET points = points - ? WHERE name = ?', (points, cmd.user.name)).fetchone()
-        cmd.reply(f'{cmd.user.name} has lost {points} points')
+        await cmd.reply(f'{cmd.user.name} has lost {points} points')
     conn.commit()
+    conn.close()
 
 async def duel_command_handler(cmd: ChatCommand):
     # this is going to allow the user to duel another user
@@ -203,15 +208,22 @@ async def duel_command_handler(cmd: ChatCommand):
     opponent = cmd.text.split(' ')[1]
     points = cmd.text.split(' ')[2]
     conn = sqlite3.connect('app.db')
-    if random_number == 1:
+    points_total = conn.execute('SELECT points FROM users WHERE name = ?', (cmd.user.name,)).fetchone()
+    opponent_points_total = conn.execute('SELECT points FROM users WHERE name = ?', (opponent,)).fetchone()
+    if int(points) > int(points_total[0]):
+        await cmd.reply(f'{cmd.user.name} does not have enough points to duel')
+    elif int(points) > int(opponent_points_total[0]):
+        await cmd.reply(f'{opponent} does not have enough points to duel')
+    elif random_number == 1:
         conn.execute('UPDATE users SET points = points + ? WHERE name = ?', (points, cmd.user.name)).fetchone()
         conn.execute('UPDATE users SET points = points - ? WHERE name = ?', (points, opponent)).fetchone()
-        cmd.reply(f'{cmd.user.name} has beat {opponent}! they won {points} points')
+        await cmd.reply(f'{cmd.user.name} has beat {opponent}! they won {points} points')
     else:
         conn.execute('UPDATE users SET points = points - ? WHERE name = ?', (points, cmd.user.name)).fetchone()
         conn.execute('UPDATE users SET points = points + ? WHERE name = ?', (points, opponent)).fetchone()
-        cmd.reply(f'{cmd.user.name} has lost to {opponent}! they lost {points} points')
+        await cmd.reply(f'{cmd.user.name} has lost to {opponent}! they lost {points} points')
     conn.commit()
+    conn.close()
 
 # set up the connection to Twitch
 async def twitch_connect():
