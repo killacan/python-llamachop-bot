@@ -24,7 +24,7 @@ class OpenAIChatbot():
             print("Chatbot: Bye!")
             return
         conversation = [
-            {"role": "system", "content": f"You are {self.bot_name}, and you like {self.bot_interests}. You will respond like a human, and with slight sarcasm."},
+            {"role": "system", "content": f"You are {self.bot_name}, and you like {self.bot_interests}. You will respond like a human, and with slight sarcasm and short messages. Try to engage and empathize with the user."},
             # {"role": "user", "content": "What is your name?"},
             # {"role": "assistant", "content": "My name is llamachop."},
             {"role": "user", "content": utterance},
