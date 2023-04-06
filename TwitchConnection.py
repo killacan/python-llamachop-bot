@@ -23,6 +23,7 @@ CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 TARGET_CHANNEL = config['target_channel']
 USER_SCOPE = [AuthScope.CHAT_READ, AuthScope.CHAT_EDIT]
+engagement_mode = config['engagement_mode']
 
 # initialize the bot, change one of the available options in config to true
 
@@ -30,6 +31,8 @@ if config['OpenAI']:
     ai = OpenAIChatbot()
 elif config['blenderbot']:
     ai = ChatBot() 
+
+engagement_list = {} # to keep track of users and if they are engaged
 
 try:
     conn = sqlite3.connect('app.db')
@@ -80,6 +83,7 @@ async def on_message(msg: ChatMessage):
         mod = False
 
     if '@llamachop_bot' in msg.text:
+        engagement_list[msg.user.name] = True
         await bot_command_handler(msg)
     elif msg.text.startswith('!points'):
         await points_command_handler(msg)
@@ -103,10 +107,21 @@ async def on_message(msg: ChatMessage):
         await duel_command_handler(msg)
     elif msg.text.startswith('!help'):
         await help_command_handler(msg)
+    elif msg.user.name not in engagement_list:
+        await engagement_handler(msg)
     
+    if msg.user.name in engagement_list:
+        engagement_list[msg.user.name].messages += 1
+        if engagement_list[msg.user.name].messages >= 5:
+            conn.execute('UPDATE users SET points = points + 1 WHERE name = ?', (msg.user.name,))
     
     conn.commit()
     conn.close()
+
+async def engagement_handler(msg: ChatMessage):
+    if engagement_mode:
+        await msg.reply(f'hello @{msg.user.name}! I am a bot created by leisurellama, reply with @llamachop_bot to talk to me!')
+        engagement_list[msg.user.name] = {}
 
 async def help_command_handler(cmd: ChatCommand):
     cmd.reply(f'list of commands: !points, !gamble, !duel, !help')

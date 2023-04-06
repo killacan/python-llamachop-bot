@@ -23,10 +23,11 @@ class OpenAIChatbot():
             self.running = False
             print("Chatbot: Bye!")
             return
+        
+        system_message = {"role": "system", "content": f"You are {self.bot_name}, and you like {self.bot_interests}. You will respond like a human, and with slight sarcasm and short messages. Try to engage and empathize with the user."}
+
         conversation = [
-            {"role": "system", "content": f"You are {self.bot_name}, and you like {self.bot_interests}. You will respond like a human, and with slight sarcasm and short messages. Try to engage and empathize with the user."},
-            # {"role": "user", "content": "What is your name?"},
-            # {"role": "assistant", "content": "My name is llamachop."},
+            system_message,
             {"role": "user", "content": utterance},
         ]
         response = openai.ChatCompletion.create(

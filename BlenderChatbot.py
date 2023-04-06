@@ -1,9 +1,14 @@
 from transformers import BlenderbotTokenizer, BlenderbotForConditionalGeneration
+import json
 import torch
+
+# to change the model, change the path in config.json
+with open('config.json') as f:
+    config = json.load(f)
 
 class ChatBot():
     def __init__(self):
-        self.model_name = "facebook/blenderbot-400M-distill"
+        self.model_name = config["model"]
         # self.model_name = "facebook/blenderbot-3B"
         # self.model_name = "facebook/blenderbot-1B-distill"
         self.model = BlenderbotForConditionalGeneration.from_pretrained(self.model_name)
