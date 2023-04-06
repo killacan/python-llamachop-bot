@@ -6,6 +6,7 @@ import asyncio
 from dotenv import load_dotenv
 import os
 from BlenderChatbot import ChatBot
+from OpenAIChatbot import OpenAIChatbot
 import json
 import sqlite3
 import random
@@ -20,7 +21,12 @@ TARGET_CHANNEL = os.getenv("TARGET_CHANNEL")
 USER_SCOPE = [AuthScope.CHAT_READ, AuthScope.CHAT_EDIT]
 
 # initialize the bot
-ai = ChatBot()
+
+# this is the local bot
+# ai = ChatBot()
+
+# this is the OpenAI bot
+ai = OpenAIChatbot()
 
 try:
     conn = sqlite3.connect('app.db')
