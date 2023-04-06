@@ -38,6 +38,14 @@ to run the Twitch Chatbot:
 
 clone the repo
 
+dependencies:
+
+- Python
+- PyTorch
+- python-dotenv
+- twitchAPI
+- openAI
+
 ```bash
 git clone <paste repo link here>
 cd python-llamachop-bot
@@ -54,12 +62,8 @@ python BlenderChatbot.py
 
 This will open the chatbot in the terminal and you can communicate with it directly. 
 
-known issues:
-
-- first time you connect to the bot, it requires you to sign in to a twitch account as authorization. After this access token times out, it will fail to connect. You have to delete user_credentials.json to fix this. I am working on a fix for this.
-
 ## Planned Features
 
-- Add a way to connect to an API to run the model.
+- [X] Add a way to connect to an API to run the model.
 - allow the bot to be used in multiple channels at once.
 - fine tune my own model to be used for the bot. 
