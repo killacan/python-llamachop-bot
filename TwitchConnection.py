@@ -113,7 +113,7 @@ async def bot_command_handler(cmd: ChatCommand):
     trueMessage = cmd.text[15:]
     print(trueMessage)
     reply = ai.text_output(utterance=trueMessage)
-    await cmd.reply(f'{cmd.user.name}: {reply[3:-4]}')
+    await cmd.reply(f'{cmd.user.name}: {reply}')
 
 async def points_command_handler(cmd: ChatCommand):
     # this is going to access the database and return the number of points the user has
