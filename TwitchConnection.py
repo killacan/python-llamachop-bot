@@ -76,7 +76,7 @@ async def on_message(msg: ChatMessage):
     else:
         mod = False
 
-    if msg.text.startswith('@llamachop_bot'):
+    if '@llamachop_bot' in msg.text:
         await bot_command_handler(msg)
     elif msg.text.startswith('!points'):
         await points_command_handler(msg)
@@ -110,7 +110,7 @@ async def help_command_handler(cmd: ChatCommand):
 
 # here we need to put in a function that will be executed when a user messages !bot in chat
 async def bot_command_handler(cmd: ChatCommand):
-    trueMessage = cmd.text[15:]
+    trueMessage = cmd.text
     print(trueMessage)
     reply = ai.text_output(utterance=trueMessage)
     await cmd.reply(f'{cmd.user.name}: {reply}')
