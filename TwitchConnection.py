@@ -14,19 +14,22 @@ import random
 # this is to be able to use the .env file in the same directory
 load_dotenv()
 
+# load in the configuration file
+with open('config.json', 'r') as f:
+    config = json.load(f)
+
 # set up the authentication stuff
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
-TARGET_CHANNEL = os.getenv("TARGET_CHANNEL")
+TARGET_CHANNEL = config['target_channel']
 USER_SCOPE = [AuthScope.CHAT_READ, AuthScope.CHAT_EDIT]
 
-# initialize the bot, leave one uncommented depending on which bot you want to use
+# initialize the bot, change one of the available options in config to true
 
-# this is the local bot
-# ai = ChatBot()
-
-# this is the OpenAI bot
-ai = OpenAIChatbot()
+if config['OpenAI']:
+    ai = OpenAIChatbot()
+elif config['blenderbot']:
+    ai = ChatBot() 
 
 try:
     conn = sqlite3.connect('app.db')

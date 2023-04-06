@@ -1,0 +1,7 @@
+{
+    "blenderbot": false,
+    "OpenAI": true,
+    "model": "facebook/blenderbot-400M-distill",
+    "target_channel": "leisurellama",
+    "engagement_mode": true
+}
