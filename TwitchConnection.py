@@ -20,7 +20,7 @@ CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 TARGET_CHANNEL = os.getenv("TARGET_CHANNEL")
 USER_SCOPE = [AuthScope.CHAT_READ, AuthScope.CHAT_EDIT]
 
-# initialize the bot
+# initialize the bot, leave one uncommented depending on which bot you want to use
 
 # this is the local bot
 # ai = ChatBot()
