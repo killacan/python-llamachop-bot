@@ -110,9 +110,15 @@ async def on_message(msg: ChatMessage):
     elif msg.user.name not in engagement_list:
         await engagement_handler(msg)
     
+    print(engagement_list)
     if msg.user.name in engagement_list:
-        engagement_list[msg.user.name].messages += 1
-        if engagement_list[msg.user.name].messages >= 5:
+        if 'messages' not in engagement_list[msg.user.name]:
+            engagement_list[msg.user.name]["messages"] = 1
+        else:
+            engagement_list[msg.user.name]["messages"] += 1
+        
+        if engagement_list[msg.user.name]["messages"] >= 5:
+            engagement_list[msg.user.name]["messages"] = 0
             conn.execute('UPDATE users SET points = points + 1 WHERE name = ?', (msg.user.name,))
     
     conn.commit()
@@ -120,7 +126,7 @@ async def on_message(msg: ChatMessage):
 
 async def engagement_handler(msg: ChatMessage):
     if engagement_mode:
-        await msg.reply(f'hello @{msg.user.name}! I am a bot created by leisurellama, reply with @llamachop_bot to talk to me!')
+        await msg.reply(f'hello @{msg.user.name}! I am a bot created by leisurellama, put @llamachop_bot in your message to talk to me! How are you doing today?')
         engagement_list[msg.user.name] = {}
 
 async def help_command_handler(cmd: ChatCommand):
