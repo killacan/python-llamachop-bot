@@ -3,10 +3,12 @@ from twitchAPI.oauth import UserAuthenticator
 from twitchAPI.types import AuthScope, ChatEvent
 from twitchAPI.chat import Chat, EventData, ChatMessage, ChatSub, ChatCommand
 import asyncio
+import vlc
 from dotenv import load_dotenv
 import os
 from BlenderChatbot import ChatBot
 from OpenAIChatbot import OpenAIChatbot
+from tts import speak
 import json
 import sqlite3
 import random
@@ -24,6 +26,7 @@ CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 TARGET_CHANNEL = config['target_channel']
 USER_SCOPE = [AuthScope.CHAT_READ, AuthScope.CHAT_EDIT]
 engagement_mode = config['engagement_mode']
+tts = config['tts']
 
 # initialize the bot, change one of the available options in config to true
 
@@ -83,7 +86,7 @@ async def on_message(msg: ChatMessage):
         mod = False
 
     if '@llamachop_bot' in msg.text:
-        engagement_list[msg.user.name] = True
+        engagement_list[msg.user.name] = {}
         await bot_command_handler(msg)
     elif msg.text.startswith('!points'):
         await points_command_handler(msg)
@@ -110,11 +113,12 @@ async def on_message(msg: ChatMessage):
     elif msg.user.name not in engagement_list:
         await engagement_handler(msg)
     
-    print(engagement_list)
     if msg.user.name in engagement_list:
+        print(engagement_list)
         if 'messages' not in engagement_list[msg.user.name]:
             engagement_list[msg.user.name]["messages"] = 1
         else:
+            print(engagement_list[msg.user.name]["messages"])
             engagement_list[msg.user.name]["messages"] += 1
         
         if engagement_list[msg.user.name]["messages"] >= 5:
@@ -138,6 +142,10 @@ async def bot_command_handler(cmd: ChatCommand):
     print(trueMessage)
     reply = ai.text_output(utterance=trueMessage)
     await cmd.reply(f'{cmd.user.name}: {reply}')
+    if tts:
+        speak(reply)
+        media = vlc.MediaPlayer('output.mp3')
+        media.play()
 
 async def points_command_handler(cmd: ChatCommand):
     # this is going to access the database and return the number of points the user has
