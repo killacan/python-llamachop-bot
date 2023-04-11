@@ -13,6 +13,7 @@ from stt import listen
 import json
 import sqlite3
 import random
+import keyboard
 
 # this is to be able to use the .env file in the same directory
 load_dotenv()
@@ -139,11 +140,17 @@ async def help_command_handler(cmd: ChatCommand):
     cmd.reply(f'list of commands: !points, !gamble, !duel, !help')
 
 # here we need to put in a function that will be executed when a user messages !bot in chat
-async def bot_command_handler(cmd: ChatCommand):
+async def bot_command_handler(cmd: ChatCommand, chat):
+    if cmd is None:
+        return
     trueMessage = cmd.text
     print(trueMessage)
     reply = ai.text_output(utterance=trueMessage)
-    await cmd.reply(f'{cmd.user.name}: {reply}')
+    if cmd.voice:
+        await Chat.send_message(chat, room=TARGET_CHANNEL, text=reply)
+    else:
+        await cmd.reply(f'{cmd.user.name}: {reply}')
+    
     if tts:
         speak(reply)
         media = vlc.MediaPlayer('output.mp3')
@@ -265,6 +272,10 @@ async def duel_command_handler(cmd: ChatCommand):
     conn.commit()
     conn.close()
 
+async def recording_handler(chat):
+    if stt:
+        await bot_command_handler(listen(), chat)
+
 # set up the connection to Twitch
 async def twitch_connect():
     # info pulled from the .env file for twitch authentication
@@ -297,11 +308,17 @@ async def twitch_connect():
     chat.register_event(ChatEvent.READY, on_ready)
     chat.register_event(ChatEvent.MESSAGE, on_message)
     chat.start()
-    listen()
 
     try:
-        input("Press enter to stop the bot...\n")
+        # input("Press enter to stop the bot...\n")
+        print("press right ctrl to stop the bot")
+        while True:
+            if keyboard.is_pressed('RIGHT_CTRL'):
+                break
+            else:
+                await recording_handler(chat)
     finally:
+        print("Stopping bot")
         chat.stop()
         await twitch.close()
 

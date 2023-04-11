@@ -2,9 +2,23 @@
 
 ## new and improved llamachop bot
 
-This is an updated version of my previous llamachop bot. It is written in python and utilizes blenderbot to generate responses. Right now I am getting it working on my twitch channel, but I eventually want to make it work for any twitch channel.
+This is an updated version of my previous llamachop bot. It is written in python and utilizes blenderbot or OpenAI GPT-3.5 to generate responses. Right now I am getting it working on my twitch channel, but I eventually want to make it work for any twitch channel.
 
-Code is set to to easily run the chatbot in terminal. Model runs locally on GPU, I have not tested it on CPU. I am using a 1080ti. Code could be changed to allow for other models to be used, might add in an easy way to connect with an API in the future. 
+Code is set to to easily run the chatbot in terminal. Model can run locally on your GPU, I have not tested it on CPU. I am using a 1080ti. Code could be changed to allow for other models to be used easily, just change the path in config.json.
+
+## Features
+
+- Chat commands
+  - !points
+  - !addpoints username amount
+  - !removepoints username amount
+  - !quote
+  - !addquote text
+  - !removequote id
+  - !addmod username
+  - !removemod username
+
+Chatbot will respond to chat messages, and will speak the responses with TTS. Chatbot can also manage points and quotes.
 
 ## Functionality
 
@@ -31,6 +45,10 @@ Code is set to to easily run the chatbot in terminal. Model runs locally on GPU,
   - !removemod username
     - This will remove a user from the mod list. replace username with the username of the user you want to remove.
     - you cant remove the streamer from the mod list and must be a mod.
+- Voice
+  - hold alt to speak to the bot.
+
+Hold Alt to speak to the bot. Info is automatically sent to Whisper AI to turn audio into text. The response from Whisper is sent to the bot, which then sends the response back to the streamer.
 
 ## Setup
 
@@ -38,32 +56,36 @@ to run the Twitch Chatbot:
 
 clone the repo
 
-dependencies:
-
-- Python
-- PyTorch
-- python-dotenv
-- twitchAPI
-- openAI
+install the requirements in requirements.txt
 
 ```bash
 git clone <paste repo link here>
 cd python-llamachop-bot
-python TwitchConnection.py
+pip install -r requirements.txt
 ```
+(optional) update the config file with your own configurations
 
-To just run the chatbot:
+create a .env file in the root directory of the project and add the following:
+
+CLIENT_ID= ""
+CLIENT_SECRET= ""
+TARGET_CHANNEL= ""
+
+OPENAI_API_KEY= ""
+OPENAI_ORGANIZATION= ""
+
+fill in the values with your own information.
+
+Also go to google cloud and create a service account. Download the json file and save it in the root directory of the project.
 
 ```bash
-git clone <paste repo link here>
-cd python-llamachop-bot
-python BlenderChatbot.py
+python TwitchConnection.py
 ```
 
 This will open the chatbot in the terminal and you can communicate with it directly. 
 
 ## Planned Features
 
-- [X] Add a way to connect to an API to run the model.
 - allow the bot to be used in multiple channels at once.
 - fine tune my own model to be used for the bot. 
+- find a good way to run local TTS on the bot's responses so Google Cloud is not needed.
