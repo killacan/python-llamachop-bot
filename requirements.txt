@@ -1,0 +1,8 @@
+twitchapi
+torch
+python-dotenv
+openai
+python-vlc
+transformers
+google-cloud-texttospeech
+scipy

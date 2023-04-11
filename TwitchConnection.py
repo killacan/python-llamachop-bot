@@ -9,6 +9,7 @@ import os
 from BlenderChatbot import ChatBot
 from OpenAIChatbot import OpenAIChatbot
 from tts import speak
+from stt import listen
 import json
 import sqlite3
 import random
@@ -27,6 +28,7 @@ TARGET_CHANNEL = config['target_channel']
 USER_SCOPE = [AuthScope.CHAT_READ, AuthScope.CHAT_EDIT]
 engagement_mode = config['engagement_mode']
 tts = config['tts']
+stt = config['stt']
 
 # initialize the bot, change one of the available options in config to true
 

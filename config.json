@@ -4,5 +4,6 @@
     "model": "facebook/blenderbot-400M-distill",
     "target_channel": "leisurellama",
     "engagement_mode": true,
-    "tts": true
+    "tts": true,
+    "stt": true
 }

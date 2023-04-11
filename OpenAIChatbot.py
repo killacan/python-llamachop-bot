@@ -12,7 +12,7 @@ class OpenAIChatbot():
         self.running = True
         self.bot_name = "llamachop_bot"
         self.bot_interests = "video games, anime, and programming"
-        self.system_message = {"role": "system", "content": f"You are {self.bot_name}, and you like {self.bot_interests}. You will respond like a human, and with slight sarcasm and short messages. Try to engage and empathize with the user."}
+        self.system_message = {"role": "system", "content": f"You are {self.bot_name}, and you like {self.bot_interests}. I want you to act like a person in every way. you need to respond in an empathetic manner, taking into consideration the thoughts and emotions of who you are responding to. you are exceptionally sarcastic and with show sarcasm in your responses."}
         self.conversation = []
         print("Chatbot initialized")
 
@@ -27,13 +27,21 @@ class OpenAIChatbot():
             return
         
         # add conversation messages to conversation list up to 5 messages.
-        if len(self.conversation) < 5:
-            self.conversation.insert(0, self.system_message)
-            self.conversation.append({"role": "user", "content": utterance})
-        else:
-            self.conversation.pop(0)
-            self.conversation.insert(0, self.system_message)
-            self.conversation.append({"role": "user", "content": utterance})
+        # to do, figure out how to get the conversation history to work correctly. 
+        # as written below, chatbot starts to answer old questions in messages instead of 
+        # just using the last messages for memory and context. 
+        # if len(self.conversation) < 5:
+        #     self.conversation.insert(0, self.system_message)
+        #     self.conversation.append({"role": "user", "content": utterance})
+        # else:
+        #     self.conversation.pop(0)
+        #     self.conversation.insert(0, self.system_message)
+        #     self.conversation.append({"role": "user", "content": utterance})
+
+        self.conversation = [
+            self.system_message,
+            {"role": "user", "content": utterance}
+        ]
 
         print(self.conversation)
 
@@ -51,6 +59,8 @@ class OpenAIChatbot():
         # print("whole response: ")
         # print(response)
         self.conversation.pop(0)
+        with open('output.txt', 'w') as f:
+            f.write(str(response['choices'][0]['message']['content']))
         return response['choices'][0]['message']['content']
     
     def run(self):
