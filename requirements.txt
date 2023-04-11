@@ -6,3 +6,4 @@ python-vlc
 transformers
 google-cloud-texttospeech
 scipy
+sounddevice

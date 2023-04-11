@@ -3,3 +3,5 @@ user_credentials.json
 __pycache__
 app.db
 llamachoptest-90319ad5895d.json
+output.mp3
+speech.wav

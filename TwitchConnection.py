@@ -297,6 +297,7 @@ async def twitch_connect():
     chat.register_event(ChatEvent.READY, on_ready)
     chat.register_event(ChatEvent.MESSAGE, on_message)
     chat.start()
+    listen()
 
     try:
         input("Press enter to stop the bot...\n")
