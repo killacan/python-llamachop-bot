@@ -10,12 +10,9 @@ def listen():
     # this function needs to record audio when a keybind is pressed
     # and then save it to a file. That file will then be sent to whisper for
     # speech to text
+    print("Listening...")
     while True:
-        if keyboard.is_pressed('RIGHT_CTRL'):
-            print("Exiting...")
-            break
-        
-        if keyboard.is_pressed('RIGHT_ALT'):
+            keyboard.wait('`')
             CHUNK = 1024
             FORMAT = pyaudio.paInt16
             CHANNELS = 1
@@ -28,18 +25,16 @@ def listen():
                             input=True,
                             frames_per_buffer=CHUNK)
             frames = []
-        
-
             
             print("Recording...")
 
-            while keyboard.is_pressed('RIGHT_ALT'):
-                
+            while keyboard.is_pressed('`'):
                 # record audio
                 data = stream.read(CHUNK)
                 frames.append(data)
             
             print("Done recording")
+
             stream.stop_stream()
             stream.close()
             p.terminate()
@@ -50,16 +45,18 @@ def listen():
             wf.writeframes(b''.join(frames))
             wf.close()
             return send_to_whisper()
-        
-        time.sleep(0.5)
 
 def send_to_whisper():
     # this function will send the audio file to whisper for speech to text
     # and then return the text to the main function
     print("Sending to whisper...")
     audio_file = open("speech.wav", "rb")
-    response = openai.Audio.transcribe("whisper-1",audio_file)
-    response['voice'] = True
-    print(response)
-    return response
+    try:
+        response = openai.Audio.transcribe("whisper-1",audio_file)
+        response['voice'] = True
+        print(response)
+        return response
+    except:
+        print("Error: Whisper is not responding. Please try again later.")
+        return
 

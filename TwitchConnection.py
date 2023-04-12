@@ -89,7 +89,9 @@ async def on_message(msg: ChatMessage):
         mod = False
 
     if '@llamachop_bot' in msg.text:
-        engagement_list[msg.user.name] = {}
+        if msg.user.name != 'streamelements' or 'soundalerts' and msg.user.name not in engagement_list:
+            engagement_list[msg.user.name] = {}
+            engagement_list[msg.user.name]["convo"] = []
         await bot_command_handler(msg)
     elif msg.text.startswith('!points'):
         await points_command_handler(msg)
@@ -140,16 +142,23 @@ async def help_command_handler(cmd: ChatCommand):
     cmd.reply(f'list of commands: !points, !gamble, !duel, !help')
 
 # here we need to put in a function that will be executed when a user messages !bot in chat
-async def bot_command_handler(cmd: ChatCommand, chat=None):
+async def bot_command_handler(cmd: ChatCommand, chat=None, convo=[]):
     if cmd is None:
         return
     trueMessage = cmd.text
     print(trueMessage)
-    reply = ai.text_output(utterance=trueMessage)
+
+
+
+    response_object = ai.text_output(utterance=trueMessage, convo=convo)
+    reply = response_object['response']
+
     if getattr(cmd, 'voice', None):
         await Chat.send_message(chat, room=TARGET_CHANNEL, text=reply)
+        engagement_list[TARGET_CHANNEL]["convo"] = response_object['convo']
     else:
         await cmd.reply(f'{cmd.user.name}: {reply}')
+        engagement_list[cmd.user.name]["convo"] = response_object['convo']
     
     if tts:
         speak(reply)
@@ -273,8 +282,15 @@ async def duel_command_handler(cmd: ChatCommand):
     conn.close()
 
 async def recording_handler(chat):
+    if TARGET_CHANNEL not in engagement_list:
+        engagement_list[TARGET_CHANNEL] = {}
+        engagement_list[TARGET_CHANNEL]['convo'] = []
+        convo = engagement_list[TARGET_CHANNEL]['convo']
+    else :
+        convo = engagement_list[TARGET_CHANNEL]['convo']
+        print('recording handler')
     if stt:
-        await bot_command_handler(listen(), chat)
+        await bot_command_handler(listen(), chat, convo)
 
 # set up the connection to Twitch
 async def twitch_connect():
@@ -311,12 +327,11 @@ async def twitch_connect():
 
     try:
         # input("Press enter to stop the bot...\n")
-        print("press right ctrl to stop the bot")
+        print("waiting for `")
         while True:
-            if keyboard.is_pressed('RIGHT_CTRL'):
-                break
-            else:
-                await recording_handler(chat)
+            keyboard.wait('`')
+            print("in the try while")
+            await recording_handler(chat)
     finally:
         print("Stopping bot")
         chat.stop()
