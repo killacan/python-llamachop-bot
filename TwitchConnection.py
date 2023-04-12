@@ -140,13 +140,13 @@ async def help_command_handler(cmd: ChatCommand):
     cmd.reply(f'list of commands: !points, !gamble, !duel, !help')
 
 # here we need to put in a function that will be executed when a user messages !bot in chat
-async def bot_command_handler(cmd: ChatCommand, chat):
+async def bot_command_handler(cmd: ChatCommand, chat=None):
     if cmd is None:
         return
     trueMessage = cmd.text
     print(trueMessage)
     reply = ai.text_output(utterance=trueMessage)
-    if cmd.voice:
+    if getattr(cmd, 'voice', None):
         await Chat.send_message(chat, room=TARGET_CHANNEL, text=reply)
     else:
         await cmd.reply(f'{cmd.user.name}: {reply}')
