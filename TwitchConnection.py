@@ -35,7 +35,7 @@ bot_name = config['bot_name']
 # initialize the bot, change one of the available options in config to true
 
 if config['OpenAI']:
-    ai = OpenAIChatbot()
+    ai = OpenAIChatbot(bot_name)
 elif config['blenderbot']:
     ai = ChatBot() 
 
@@ -120,11 +120,11 @@ async def on_message(msg: ChatMessage):
         await engagement_handler(msg)
     
     if msg.user.name in engagement_list:
-        print(engagement_list)
+        # print(engagement_list)
         if 'messages' not in engagement_list[msg.user.name]:
             engagement_list[msg.user.name]["messages"] = 1
         else:
-            print(engagement_list[msg.user.name]["messages"])
+            # print(engagement_list[msg.user.name]["messages"])
             engagement_list[msg.user.name]["messages"] += 1
         
         if engagement_list[msg.user.name]["messages"] >= 5:
@@ -196,7 +196,7 @@ async def quote_command_handler(cmd: ChatCommand):
     conn = sqlite3.connect('app.db')
     res = conn.execute('SELECT id, quote FROM quotes ORDER BY RANDOM() LIMIT 1').fetchone()
     conn.close()
-    print(res)
+    # print(res)
     if res is not None:
         id, text = res
         await cmd.reply(f'#{id}: {text}')
@@ -289,7 +289,7 @@ async def recording_handler(chat):
         convo = engagement_list[TARGET_CHANNEL]['convo']
     else :
         convo = engagement_list[TARGET_CHANNEL]['convo']
-        print('recording handler')
+        # print('recording handler')
     if stt:
         await bot_command_handler(listen(), chat, convo)
 
@@ -331,7 +331,6 @@ async def twitch_connect():
         print("waiting for `")
         while True:
             keyboard.wait('`')
-            print("in the try while")
             await recording_handler(chat)
     finally:
         print("Stopping bot")

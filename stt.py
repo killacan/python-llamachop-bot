@@ -54,7 +54,7 @@ def send_to_whisper():
     try:
         response = openai.Audio.transcribe("whisper-1",audio_file)
         response['voice'] = True
-        print(response)
+        # print(response)
         return response
     except:
         print("Error: Whisper is not responding. Please try again later.")
