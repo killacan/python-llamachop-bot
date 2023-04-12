@@ -30,6 +30,7 @@ USER_SCOPE = [AuthScope.CHAT_READ, AuthScope.CHAT_EDIT]
 engagement_mode = config['engagement_mode']
 tts = config['tts']
 stt = config['stt']
+bot_name = config['bot_name']
 
 # initialize the bot, change one of the available options in config to true
 
@@ -53,7 +54,7 @@ try:
         conn.execute('CREATE TABLE mods (id INTEGER PRIMARY KEY, name TEXT)')
         conn.execute('CREATE TABLE quotes (id INTEGER PRIMARY KEY, quote TEXT, author TEXT)')
         conn.execute('INSERT INTO mods (name) VALUES (?)', (TARGET_CHANNEL,))
-        conn.execute('INSERT INTO mods (name) VALUES (?)', ('llamachop_bot',))
+        conn.execute('INSERT INTO mods (name) VALUES (?)', (bot_name,))
         conn.commit()
 except sqlite3.Error as e:
     print(e)
@@ -88,7 +89,7 @@ async def on_message(msg: ChatMessage):
     else:
         mod = False
 
-    if '@llamachop_bot' in msg.text:
+    if ('@' + bot_name) in msg.text:
         if msg.user.name != 'streamelements' or 'soundalerts' and msg.user.name not in engagement_list:
             engagement_list[msg.user.name] = {}
             engagement_list[msg.user.name]["convo"] = []

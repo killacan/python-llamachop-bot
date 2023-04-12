@@ -11,7 +11,7 @@ class OpenAIChatbot():
         openai.organization = os.environ["OPENAI_ORGANIZATION"]
         self.running = True
         self.bot_name = "llamachop_bot"
-        self.bot_interests = "video games, anime, and programming"
+        self.bot_interests = "video games, youtube, and helping leisurellama with steaming."
         self.system_message = {"role": "system", "content": f"You are {self.bot_name}, and you like {self.bot_interests}. I want you to act like a person in every way. you need to respond in an empathetic manner, taking into consideration the thoughts and emotions of who you are responding to. you are exceptionally sarcastic and with show sarcasm in your responses."}
         print("Chatbot initialized")
 

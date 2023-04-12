@@ -3,6 +3,7 @@
     "OpenAI": true,
     "model": "facebook/blenderbot-400M-distill",
     "target_channel": "leisurellama",
+    "bot_name": "llamachop_bot",
     "engagement_mode": true,
     "tts": true,
     "stt": true
