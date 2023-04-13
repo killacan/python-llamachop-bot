@@ -4,8 +4,8 @@ import os
 
 load_dotenv()
 
-class OpenAIChatbot(bot_name):
-    def __init__(self):
+class OpenAIChatbot():
+    def __init__(self, bot_name):
         self.model_name = "gpt-3.5-turbo"
         openai.api_key = os.environ["OPENAI_API_KEY"]
         openai.organization = os.environ["OPENAI_ORGANIZATION"]
@@ -61,6 +61,7 @@ class OpenAIChatbot(bot_name):
         convo.append({"role": "assistant", "content": response['choices'][0]['message']['content']})
         with open('output.txt', 'w') as f:
             f.write(str(response['choices'][0]['message']['content']))
+        print(response['choices'])
         responseObject = {
             "response": response['choices'][0]['message']['content'],
             "convo": convo

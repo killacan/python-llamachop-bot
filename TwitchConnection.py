@@ -31,6 +31,7 @@ engagement_mode = config['engagement_mode']
 tts = config['tts']
 stt = config['stt']
 bot_name = config['bot_name']
+print("called")
 
 # initialize the bot, change one of the available options in config to true
 
