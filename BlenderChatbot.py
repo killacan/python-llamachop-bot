@@ -8,7 +8,7 @@ with open('config.json') as f:
 
 class ChatBot():
     def __init__(self):
-        self.model_name = config["model"]
+        self.model_name = config["Blender_model"]
         # self.model_name = "facebook/blenderbot-3B"
         # self.model_name = "facebook/blenderbot-1B-distill"
         self.model = BlenderbotForConditionalGeneration.from_pretrained(self.model_name)

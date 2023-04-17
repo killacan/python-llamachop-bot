@@ -1,10 +1,13 @@
 {
     "blenderbot": false,
     "OpenAI": true,
-    "model": "facebook/blenderbot-400M-distill",
+    "Dolly": false,
+    "Blender_model": "facebook/blenderbot-400M-distill",
+    "Dolly_model": "databricks/dolly-v2-12b",
     "target_channel": "leisurellama",
     "bot_name": "llamachop_bot",
     "engagement_mode": true,
     "tts": true,
+    "local_tts": false,
     "stt": true
 }

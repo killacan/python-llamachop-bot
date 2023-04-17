@@ -47,7 +47,7 @@ class OpenAIChatbot():
         response = openai.ChatCompletion.create(
             model=self.model_name,
             messages=convo,
-            max_tokens=200,
+            max_tokens=150,
             temperature=1,
             # top_p=1,
             # frequency_penalty=0.0,

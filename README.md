@@ -68,10 +68,13 @@ pip install -r requirements.txt
 create a .env file in the root directory of the project and add the following:
 
 CLIENT_ID= ""
+
 CLIENT_SECRET= ""
+
 TARGET_CHANNEL= ""
 
 OPENAI_API_KEY= ""
+
 OPENAI_ORGANIZATION= ""
 
 fill in the values with your own information.

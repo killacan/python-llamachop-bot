@@ -8,8 +8,11 @@ from dotenv import load_dotenv
 import os
 from BlenderChatbot import ChatBot
 from OpenAIChatbot import OpenAIChatbot
-from tts import speak
-from stt import listen
+from tts import TTS
+# local tts is currently not working
+# from localtts import local_speak
+from stt import listen, start_listen_thread
+import subprocess
 import json
 import sqlite3
 import random
@@ -31,7 +34,7 @@ engagement_mode = config['engagement_mode']
 tts = config['tts']
 stt = config['stt']
 bot_name = config['bot_name']
-print("called")
+local_tts = config['local_tts']
 
 # initialize the bot, change one of the available options in config to true
 
@@ -39,6 +42,11 @@ if config['OpenAI']:
     ai = OpenAIChatbot(bot_name)
 elif config['blenderbot']:
     ai = ChatBot() 
+# currently not working
+# elif config['Dolly']:
+#     ai = DollyChatbot()
+
+text_to_speech = TTS()
 
 engagement_list = {} # to keep track of users and if they are engaged
 
@@ -91,7 +99,7 @@ async def on_message(msg: ChatMessage):
         mod = False
 
     if ('@' + bot_name) in msg.text:
-        if msg.user.name != 'streamelements' or 'soundalerts' and msg.user.name not in engagement_list:
+        if msg.user.name != 'StreamElements' or 'SoundAlerts' and msg.user.name not in engagement_list:
             engagement_list[msg.user.name] = {}
             engagement_list[msg.user.name]["convo"] = []
         await bot_command_handler(msg)
@@ -144,13 +152,12 @@ async def help_command_handler(cmd: ChatCommand):
     cmd.reply(f'list of commands: !points, !gamble, !duel, !help')
 
 # here we need to put in a function that will be executed when a user messages !bot in chat
+
 async def bot_command_handler(cmd: ChatCommand, chat=None, convo=[]):
     if cmd is None:
         return
     trueMessage = cmd.text
     print(trueMessage)
-
-
 
     response_object = ai.text_output(utterance=trueMessage, convo=convo)
     reply = response_object['response']
@@ -163,9 +170,14 @@ async def bot_command_handler(cmd: ChatCommand, chat=None, convo=[]):
         engagement_list[cmd.user.name]["convo"] = response_object['convo']
     
     if tts:
-        speak(reply)
+        # tts_proc = subprocess.Popen(['python', 'tts.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print(reply)
+        await text_to_speech.add_text(reply)
+
+    if local_tts:
         media = vlc.MediaPlayer('output.mp3')
         media.play()
+
 
 async def points_command_handler(cmd: ChatCommand):
     # this is going to access the database and return the number of points the user has
@@ -284,15 +296,28 @@ async def duel_command_handler(cmd: ChatCommand):
     conn.close()
 
 async def recording_handler(chat):
-    if TARGET_CHANNEL not in engagement_list:
+    if TARGET_CHANNEL in engagement_list and 'convo' in engagement_list[TARGET_CHANNEL]:
+        convo = engagement_list[TARGET_CHANNEL]['convo']
+    elif TARGET_CHANNEL in engagement_list and 'convo' not in engagement_list[TARGET_CHANNEL]:
+        engagement_list[TARGET_CHANNEL]['convo'] = []
+        convo = engagement_list[TARGET_CHANNEL]['convo']
+    else:
         engagement_list[TARGET_CHANNEL] = {}
         engagement_list[TARGET_CHANNEL]['convo'] = []
         convo = engagement_list[TARGET_CHANNEL]['convo']
-    else :
-        convo = engagement_list[TARGET_CHANNEL]['convo']
-        # print('recording handler')
+    
     if stt:
-        await bot_command_handler(listen(), chat, convo)
+        response = await start_listen_thread()
+        if response:
+            await bot_command_handler(response, chat, convo)
+        else:
+            print('No response')
+        # stt_proc = subprocess.Popen(['python', 'stt.py'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        # text = stt_proc.stdout.read()
+        # print(text)
+        # await bot_command_handler(text, chat, convo)
+    
+
 
 # set up the connection to Twitch
 async def twitch_connect():
@@ -333,6 +358,10 @@ async def twitch_connect():
         while True:
             keyboard.wait('`')
             await recording_handler(chat)
+            await asyncio.sleep(1)
+    except KeyboardInterrupt:
+        print("keyboard interrupt")
+        pass
     finally:
         print("Stopping bot")
         chat.stop()
