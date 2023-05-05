@@ -8,6 +8,13 @@ import wave
 import asyncio
 import threading
 import queue
+import os
+import json
+
+with open('config.json', 'r') as f:
+    config = json.load(f)
+
+push_to_talk = config['push_to_talk']
 
 def listen(q):
     # this function needs to record audio when a keybind is pressed
@@ -30,7 +37,7 @@ def listen(q):
 
     print("Recording...")
 
-    while keyboard.is_pressed('`'):
+    while keyboard.is_pressed(push_to_talk):
             # record audio
             data = stream.read(CHUNK)
             frames.append(data)
@@ -56,93 +63,6 @@ async def start_listen_thread():
     t.start()
     result = await asyncio.get_event_loop().run_in_executor(None, q.get)
     return result
-
-
-# def listen():
-#     # this function needs to record audio when a keybind is pressed
-#     # and then save it to a file. That file will then be sent to whisper for
-#     # speech to text
-#     print("Listening...")
-
-#     CHUNK = 1024
-#     FORMAT = pyaudio.paInt16
-#     CHANNELS = 1
-#     RATE = 44100
-#     WAVE_OUTPUT_FILENAME = "speech.wav"
-#     p = pyaudio.PyAudio()
-#     stream = p.open(format=FORMAT,
-#                     channels=CHANNELS,
-#                     rate=RATE,
-#                     input=True,
-#                     frames_per_buffer=CHUNK)
-#     frames = []
-
-#     print("Recording...")
-
-#     while keyboard.is_pressed('`'):
-#             # record audio
-#             data = stream.read(CHUNK)
-#             frames.append(data)
-   
-#     print("Done recording")
-
-#     stream.stop_stream()
-#     stream.close()
-#     p.terminate()
-#     wf = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
-#     wf.setnchannels(CHANNELS)
-#     wf.setsampwidth(p.get_sample_size(FORMAT))
-#     wf.setframerate(RATE)
-#     wf.writeframes(b''.join(frames))
-#     wf.close()
-#     return send_to_whisper()
-
-# async def start_listen_thread():
-#     t = threading.Thread(target=listen)
-#     t.daemon = True
-#     t.start()
-
-
-
-# def listen():
-#     # this function needs to record audio when a keybind is pressed
-#     # and then save it to a file. That file will then be sent to whisper for
-#     # speech to text
-#     print("Listening...")
-
-#     keyboard.wait('`')
-#     CHUNK = 1024
-#     FORMAT = pyaudio.paInt16
-#     CHANNELS = 1
-#     RATE = 44100
-#     WAVE_OUTPUT_FILENAME = "speech.wav"
-#     p = pyaudio.PyAudio()
-#     stream = p.open(format=FORMAT,
-#                     channels=CHANNELS,
-#                     rate=RATE,
-#                     input=True,
-#                     frames_per_buffer=CHUNK)
-#     frames = []
-    
-#     print("Recording...")
-
-#     while keyboard.is_pressed('`'):
-#         # record audio
-#         data = stream.read(CHUNK)
-#         frames.append(data)
-    
-#     print("Done recording")
-
-#     stream.stop_stream()
-#     stream.close()
-#     p.terminate()
-#     wf = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
-#     wf.setnchannels(CHANNELS)
-#     wf.setsampwidth(p.get_sample_size(FORMAT))
-#     wf.setframerate(RATE)
-#     wf.writeframes(b''.join(frames))
-#     wf.close()
-#     return send_to_whisper()
 
 def send_to_whisper():
     # this function will send the audio file to whisper for speech to text

@@ -17,6 +17,7 @@ import json
 import sqlite3
 import random
 import keyboard
+import time
 
 # this is to be able to use the .env file in the same directory
 load_dotenv()
@@ -35,6 +36,7 @@ tts = config['tts']
 stt = config['stt']
 bot_name = config['bot_name']
 local_tts = config['local_tts']
+push_to_talk = config['push_to_talk']
 
 # initialize the bot, change one of the available options in config to true
 
@@ -65,6 +67,13 @@ try:
         conn.execute('INSERT INTO mods (name) VALUES (?)', (TARGET_CHANNEL,))
         conn.execute('INSERT INTO mods (name) VALUES (?)', (bot_name,))
         conn.commit()
+
+    messages_table = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='messages'")
+
+    if not messages_table:
+        conn.execute('CREATE TABLE messages (id INTEGER PRIMARY KEY, user_message TEXT, author TEXT, timestamp TEXT, chatbot_response TEXT)')
+        conn.commit()
+
 except sqlite3.Error as e:
     print(e)
 finally:
@@ -153,14 +162,22 @@ async def help_command_handler(cmd: ChatCommand):
 
 # here we need to put in a function that will be executed when a user messages !bot in chat
 
+# conn.execute('CREATE TABLE messages (id INTEGER PRIMARY KEY, user_message TEXT, author TEXT, timestamp TEXT, chatbot_response TEXT)')
+
 async def bot_command_handler(cmd: ChatCommand, chat=None, convo=[]):
     if cmd is None:
         return
     trueMessage = cmd.text
     print(trueMessage)
-
+    # print("below is cmd")
+    # print(cmd.user['name'])
     response_object = ai.text_output(utterance=trueMessage, convo=convo)
     reply = response_object['response']
+
+    # conn = sqlite3.connect('app.db')
+    # conn.execute('INSERT INTO messages (user_message, author, timestamp, chatbot_response) VALUES (?, ?, ?, ?)', (trueMessage, cmd.user.name, datetime.datetime.now(), reply))
+    # conn.commit()
+    # conn.close()
 
     if getattr(cmd, 'voice', None):
         await Chat.send_message(chat, room=TARGET_CHANNEL, text=reply)
@@ -308,6 +325,9 @@ async def recording_handler(chat):
     
     if stt:
         response = await start_listen_thread()
+        response['user'] = {}
+        response['user']['name'] = TARGET_CHANNEL
+
         if response:
             await bot_command_handler(response, chat, convo)
         else:
@@ -354,9 +374,9 @@ async def twitch_connect():
 
     try:
         # input("Press enter to stop the bot...\n")
-        print("waiting for `")
+        print(f"waiting for {push_to_talk} to be pressed")
         while True:
-            keyboard.wait('`')
+            keyboard.wait(push_to_talk)
             await recording_handler(chat)
             await asyncio.sleep(1)
     except KeyboardInterrupt:

@@ -9,5 +9,6 @@
     "engagement_mode": true,
     "tts": true,
     "local_tts": false,
-    "stt": true
+    "stt": true, 
+    "push_to_talk": "1"
 }

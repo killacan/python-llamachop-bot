@@ -55,11 +55,12 @@ class TTS:
             self.media.set_media(vlc.Media("output.mp3"))
             self.media.play()
 
-            media_length = self.media.get_length() / 1000
-            asyncio.sleep(media_length)
 
             while self.media.get_state() == vlc.State.Playing:
                 await asyncio.sleep(0.1)
+            
+            # media_length = self.media.get_length() / 1000
+            # await asyncio.sleep(media_length)
 
             self.queue.task_done()
 
