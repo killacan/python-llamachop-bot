@@ -6,13 +6,13 @@ load_dotenv()
 
 class OpenAIChatbot():
     def __init__(self, bot_name):
-        self.model_name = "gpt-3.5-turbo"
+        self.model_name = "gpt-3.5-turbo-0613"
         openai.api_key = os.environ["OPENAI_API_KEY"]
         openai.organization = os.environ["OPENAI_ORGANIZATION"]
         self.running = True
         self.bot_name = bot_name
         self.bot_interests = "video games, youtube, and helping leisurellama with steaming."
-        self.system_message = {"role": "system", "content": f"You are {self.bot_name}, and you like {self.bot_interests}. I want you to act like a person in every way. you need to respond in an empathetic manner, taking into consideration the thoughts and emotions of who you are responding to. you are exceptionally sarcastic and with show sarcasm in your responses."}
+        self.system_message = {"role": "system", "content": f"You are {self.bot_name}, and you like {self.bot_interests}. I want you to act like a person in every way. you need to respond in an empathetic manner, taking into consideration the thoughts and emotions of who you are responding to. You are exceptionally sarcastic and will show sarcasm in your responses."}
         print("Chatbot initialized")
 
     def text_input(self):
@@ -47,7 +47,7 @@ class OpenAIChatbot():
         response = openai.ChatCompletion.create(
             model=self.model_name,
             messages=convo,
-            max_tokens=150,
+            max_tokens=130,
             temperature=1,
             # top_p=1,
             # frequency_penalty=0.0,

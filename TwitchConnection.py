@@ -18,6 +18,15 @@ import sqlite3
 import random
 import keyboard
 import time
+# from flask import Flask
+
+# app = Flask(__name__)
+
+# @app.route('/')
+# def index():
+#     asyncio.run(twitch_connect())
+#     print("its working! its working!")
+#     return "Hello World"
 
 # this is to be able to use the .env file in the same directory
 load_dotenv()
@@ -108,7 +117,7 @@ async def on_message(msg: ChatMessage):
         mod = False
 
     if ('@' + bot_name) in msg.text:
-        if msg.user.name != 'StreamElements' or 'SoundAlerts' and msg.user.name not in engagement_list:
+        if msg.user.name != 'streamElements' or 'soundAlerts' and msg.user.name not in engagement_list:
             engagement_list[msg.user.name] = {}
             engagement_list[msg.user.name]["convo"] = []
         await bot_command_handler(msg)
@@ -387,4 +396,6 @@ async def twitch_connect():
         chat.stop()
         await twitch.close()
 
+# if __name__ == "__main__":
+#     app.run(host="127.0.0.1", port=8080, debug=True)
 asyncio.run(twitch_connect())
