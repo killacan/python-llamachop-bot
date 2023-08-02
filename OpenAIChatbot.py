@@ -47,21 +47,27 @@ class OpenAIChatbot():
         response = openai.ChatCompletion.create(
             model=self.model_name,
             messages=convo,
-            max_tokens=130,
+            max_tokens=120,
             temperature=1,
             # top_p=1,
             # frequency_penalty=0.0,
             # presence_penalty=0.6,
-            stop=["\n"]
+            # stop=["\n"]
         )
         # print("Chatbot: ", response['choices'][0]['message']['content'])
         # print("whole response: ")
         # print(response)
+        print (response.choices[0].message)
+        print ("new line")
+        response.choices[0].message.content = response.choices[0].message.content.replace("\n", "")
+        print (response.choices[0].message)
+
         convo.pop(0)
-        convo.append({"role": "assistant", "content": response['choices'][0]['message']['content']})
-        with open('output.txt', 'w') as f:
-            f.write(str(response['choices'][0]['message']['content']))
-        print(response['choices'])
+        convo.append({"role": "assistant", "content": response['choices'][0]['message']['content'].replace("\n", "")})
+        
+        with open('output.txt', 'w', encoding='utf-8') as f:
+            f.write(str(response['choices'][0]['message']['content'].replace("\n", "")))
+        # print(response['choices'])
         responseObject = {
             "response": response['choices'][0]['message']['content'],
             "convo": convo

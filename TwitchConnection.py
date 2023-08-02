@@ -188,11 +188,27 @@ async def bot_command_handler(cmd: ChatCommand, chat=None, convo=[]):
     # conn.commit()
     # conn.close()
 
+    MAX_MESSAGE_LENGTH = 250
+
     if getattr(cmd, 'voice', None):
-        await Chat.send_message(chat, room=TARGET_CHANNEL, text=reply)
+        if len(reply) > MAX_MESSAGE_LENGTH:
+            half_length = len(reply) // 2
+            first_half = reply[:half_length]
+            second_half = reply[half_length:]
+            await Chat.send_message(chat, room=TARGET_CHANNEL, text=first_half)
+            await Chat.send_message(chat, room=TARGET_CHANNEL, text=second_half)
+        else:
+            await Chat.send_message(chat, room=TARGET_CHANNEL, text=reply)
         engagement_list[TARGET_CHANNEL]["convo"] = response_object['convo']
     else:
-        await cmd.reply(f'{cmd.user.name}: {reply}')
+        if len(reply) > MAX_MESSAGE_LENGTH:
+            half_length = len(reply) // 2
+            first_half = reply[:half_length]
+            second_half = reply[half_length:]
+            await cmd.reply(f'{cmd.user.name}: {first_half}')
+            await cmd.reply(f'{cmd.user.name}: {second_half}')
+        else:
+            await cmd.reply(f'{cmd.user.name}: {reply}')
         engagement_list[cmd.user.name]["convo"] = response_object['convo']
     
     if tts:
@@ -334,8 +350,9 @@ async def recording_handler(chat):
     
     if stt:
         response = await start_listen_thread()
-        response['user'] = {}
-        response['user']['name'] = TARGET_CHANNEL
+        if response is not None:
+            response['user'] = {}
+            response['user']['name'] = TARGET_CHANNEL
 
         if response:
             await bot_command_handler(response, chat, convo)
