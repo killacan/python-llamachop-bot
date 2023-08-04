@@ -54,13 +54,6 @@ class OpenAIChatbot():
             # presence_penalty=0.6,
             # stop=["\n"]
         )
-        # print("Chatbot: ", response['choices'][0]['message']['content'])
-        # print("whole response: ")
-        # print(response)
-        print (response.choices[0].message)
-        print ("new line")
-        response.choices[0].message.content = response.choices[0].message.content.replace("\n", "")
-        print (response.choices[0].message)
 
         convo.pop(0)
         convo.append({"role": "assistant", "content": response['choices'][0]['message']['content'].replace("\n", "")})
